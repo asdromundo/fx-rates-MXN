@@ -15,7 +15,7 @@ import TheGraph from './components/TheGraph.vue';
 
   <main>
     <TheGraph />
-    <TheWelcome />
+<!--     <TheWelcome /> -->
 
   </main>
 </template>

@@ -3,8 +3,7 @@
         <div class="chart1">
             <div id="lineChart"></div>
         </div>
-        {{info}}
-    </div>
+            </div>
 </template>
 <script>
 
@@ -14,12 +13,14 @@
 
 // define from currency, to currency, and amount
 var from = 'MXN';
-var to = 'USD';
+const list_of_currency = ['GBP', 'USD', 'CNY'];
+let to = list_of_currency.join();
 
 var start_date = '2022-03-01';
 var end_date = '2022-08-01'
 var date_range = (start_date === "" ? 'latest?' : start_date + ".." + end_date + "?");
 
+import { objectToString } from '@vue/shared';
 import c3 from 'c3';
 
 export default {
@@ -27,14 +28,13 @@ export default {
     data() {
         return {
             data: {},
-            info: {}
         }
     },
     beforeMount() {
         //this.getFXFromFrankfurter();
     },
     mounted() {
-        this.chartAPI();
+        this.chartFromFrankfurter();
     },
     methods: {
         chart() {
@@ -96,25 +96,58 @@ export default {
                 chart.axis.labels({ y: 'New Y Axis Label Again' });
             }, 2000);
         },
-        async getFXFromFrankfurter() {
-            // execute the conversion using the "convert" endpoint:
+
+        async chartFromFrankfurter() {
             const url = 'https://api.frankfurter.app/' + date_range + 'amount=1&from=' + from + "&to=" + to;
             const res = await fetch(url);
             const data = await res.json();
-            this.info = data;
+            var date_set = []
+            var rates = [];
+            var test = [];
 
-        },
-        chartAPI() {
-            this.getFXFromFrankfurter();
-            console.log(this.data != this.info);
-            let chart = c3.generate({
-                bindto: '#lineChart',
+            for (const [key, value] of Object.entries(data["rates"])) {
+                let new_value = Object.assign({date : key}, value);
+                test.push(new_value);
+            }
+            console.log(data["rates"]);
+            var chart = c3.generate({
+                bindto: "#lineChart",
                 data: {
-                    url: this.info,
-                   
+/*                     x: 'x',
+                    //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+                    columns: [
+                        ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+                        //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
+                        ['data1', 30, 200, 100, 400, 150, 250],
+                        ['data2', 130, 340, 200, 500, 250, 350]
+                    ] */
+                    /*                     json: [
+                                            { name: 'www.site1.com', upload: 200, download: 200, total: 400 },
+                                            { name: 'www.site2.com', upload: 100, download: 300, total: 400 },
+                                            { name: 'www.site3.com', upload: 300, download: 200, total: 500 },
+                                            { name: 'www.site4.com', upload: 400, download: 100, total: 500 }
+                                        ],
+                                        keys: {
+                                            x: 'name', // it's possible to specify 'x' when category axis
+                                            value: ['upload', 'download']
+                                        } */
+                    json: test,
+                    keys: {
+                        x: 'date',
+                        value: list_of_currency
+                    }
+                },
+                axis: {
+                    x: {
+                        //type: 'category'
+                        type: 'timeseries',
+                        tick: {
+                            format: '%Y-%m-%d'
+                        }
+                    }
                 }
             });
-        } 
+        }
     }
 }
 </script>
