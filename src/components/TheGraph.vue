@@ -1,6 +1,6 @@
 <template>
     <div id="home">
-        <div class="chart1">
+        <div class="chart">
             <div id="lineChart"></div>
         </div>
     </div>
@@ -20,14 +20,25 @@ import c3 from 'c3';
 export default {
     data() {
         return {
-            data: {},
+            dataset: {},
         }
     },
     mounted() {
         this.chartFromFrankfurter();
     },
     methods: {
+        async getFromAFrankfurter(){
+            const url = 'https://api.frankfurter.app/' + date_range + 'amount=1&from=' + from + "&to=" + to;
+            const res = await fetch(url);
+            const data = await res.json();
+            var dataset = [];
 
+            for (const [key, value] of Object.entries(data["rates"])) {
+                let new_value = Object.assign({ date: key }, value);
+                dataset.push(new_value);
+            }
+            this.dataset = dataset;
+        },
         async chartFromFrankfurter() {
             const url = 'https://api.frankfurter.app/' + date_range + 'amount=1&from=' + from + "&to=" + to;
             const res = await fetch(url);
@@ -38,7 +49,6 @@ export default {
                 let new_value = Object.assign({ date: key }, value);
                 dataset.push(new_value);
             }
-            console.log(data["rates"]);
             var chart = c3.generate({
                 bindto: "#lineChart",
                 data: {
@@ -88,6 +98,11 @@ export default {
         stroke:rgb(255, 255, 255);
     }
     */
+/* #home div{
+    padding-top: 30px;
+} */
+
+
 #lineChart .c3-line {
     stroke-width: 3px;
 }
