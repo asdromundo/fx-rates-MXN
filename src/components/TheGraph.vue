@@ -18,7 +18,6 @@ var date_range = (start_date === "" ? 'latest?' : start_date + ".." + end_date +
 import c3 from 'c3';
 
 export default {
-    //name: TheGraph,
     data() {
         return {
             data: {},
@@ -33,19 +32,17 @@ export default {
             const url = 'https://api.frankfurter.app/' + date_range + 'amount=1&from=' + from + "&to=" + to;
             const res = await fetch(url);
             const data = await res.json();
-            var date_set = []
-            var rates = [];
-            var test = [];
+            var dataset = [];
 
             for (const [key, value] of Object.entries(data["rates"])) {
                 let new_value = Object.assign({ date: key }, value);
-                test.push(new_value);
+                dataset.push(new_value);
             }
             console.log(data["rates"]);
             var chart = c3.generate({
                 bindto: "#lineChart",
                 data: {
-                    json: test,
+                    json: dataset,
                     keys: {
                         x: 'date',
                         value: list_of_currency
@@ -53,14 +50,16 @@ export default {
                 },
                 axis: {
                     x: {
-                        //type: 'category'
                         label: {
                             text: 'Time interval',
                             position: 'center'
                         },
                         type: 'timeseries',
                         tick: {
-                            format: '%Y-%m-%d'
+                            multiline: true,
+                            culling: {max: 10},
+                            fit: false,
+                            format: '%d-%m-%y'
                         }
                     },
                     y: {
@@ -69,6 +68,9 @@ export default {
                             position: 'center'
                         }
                     }
+                },
+                point: {
+                    show: false
                 }
             });
         }
@@ -86,9 +88,16 @@ export default {
         stroke:rgb(255, 255, 255);
     }
     */
-
+#lineChart .c3-line {
+    stroke-width: 3px;
+}
 #lineChart .c3-axis path,
 line {
-    stroke: rgb(205, 210, 214);
+    stroke-width: 2px;
+    stroke:black;
+}
+#lineChart .c3-axis text {
+    font-family: sans-serif;
+    font-size: 14px;
 }
 </style>
